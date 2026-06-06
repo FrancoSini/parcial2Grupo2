@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: miapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+
+  api:
+    build: .
+    container_name: api_backend
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: 1234
+      DB_NAME: miapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
