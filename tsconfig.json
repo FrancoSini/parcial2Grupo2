@@ -1,12 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2022" /* Versión de JS de salida */,
-    "module": "CommonJS" /* 🔴 CLAVE: Fuerza a traducir los import/export a require */,
-    "moduleResolution": "node" /* Cómo busca los archivos Node */,
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
-    "esModuleInterop": true /* Permite compatibilidad total entre require e import */,
-    "forceConsistentCasingInFileNames": true /* Respeta mayúsculas y minúsculas */,
-    "strict": true /* Habilita el tipado estricto de TS */,
-    "skipLibCheck": true /* Omite la comprobación de tipos de las librerías */
-  }
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "rootDir": "./"
+  },
+  "include": ["./"],
+  "exclude": ["node_modules", "dist"]
 }
