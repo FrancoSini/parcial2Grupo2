@@ -1,4 +1,4 @@
-const { router } = require('express')
+const { Router } = require('express')
 const router = Router()
 const { middlewareCategoria } = require('../middleware/categoria-validator')
 const {
