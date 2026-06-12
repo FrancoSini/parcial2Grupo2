@@ -1,19 +1,18 @@
-const Categoria = require('../models/categoria')
+const { router } = require('express')
+const router = Router()
+const { middlewareCategoria } = require('../middleware/categoria-validator')
+const {
+  getAllCategorias,
+  getCategoriaById,
+  postCategoria,
+  updateCategoria,
+  deleteCategoria
+} = require('../controllers/categoria.controller')
 
-exports.crearCategoria = async (req, res) => {
-  try {
-    const nueva = await Categoria.create(req.body)
-    res.status(201).json(nueva)
-  } catch (error) {
-    res.status(500).json({ error: 'Error al crear categoría' })
-  }
-}
+router.get('/', getAllCategorias)
+router.get('/:id', getCategoriaById)
+router.post('/', middlewareCategoria, postCategoria)
+//router.put('/:id', middlewareCategoria, updateCategoria)
+//router.delete('/:id', deleteCategoria)
 
-exports.listarCategorias = async (req, res) => {
-  try {
-    const categorias = await Categoria.findAll()
-    res.json(categorias)
-  } catch (error) {
-    res.status(500).json({ error: 'Error al listar categorías' })
-  }
-}
+module.exports = router
