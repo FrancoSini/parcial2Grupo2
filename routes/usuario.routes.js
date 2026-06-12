@@ -1,19 +1,18 @@
 const { Router } = require('express')
+const router = Router()
+const  { middlewareUsuarios } = require('../middleware/usuario-validator')
 
-const {
-  getUsuarioAll,
-  getUsuarioById,
-  postNewUsuario,
-  putUsuarioById,
-  deleteUsuarioById
-} = require('../controllers/usuario.controller')
+const { getAllUsuarios } = require('../controllers/usuario.controller')
 
-const rutas = Router()
 
-rutas.get('/', getUsuarioAll)
-rutas.get('/:id', getUsuarioById)
-rutas.post('/', postNewUsuario)
-rutas.put('/:id', putUsuarioById)
-rutas.delete('/:id', deleteUsuarioById)
+router.get('/',  getAllUsuarios)
+router.get('/:id', getUsuarioById)
+router.post('/', middlewareUsuarios, postUsuario)
+// router.put('/:id', middlewareUsuarios, putUsuario)
+// router.delete('/:id', deleteUsuario)
 
-module.exports = rutas
+
+module.exports = router
+
+
+

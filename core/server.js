@@ -1,6 +1,9 @@
 const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
+const errorHandler = require('../middleware/error-handler')
+const { sequelize } = require('../models/n-index.models')
+
 
 class Server {
   constructor() {
@@ -8,6 +11,7 @@ class Server {
     this.port = process.env.PORT || 3000
     this.middleware()
     this.rutas()
+    this.errorHandlerGlobal()
   }
 
   middleware() {
@@ -20,18 +24,11 @@ class Server {
 
     this.app.use('/usuarios', require('../routes/usuario.routes'))
     
-    // Manejo de errores
-    this.app.use((req, res, next) => {
-      return res.status(400).json({ msg: 'Error.' })
-    })
-    this.app.use((err, req, res, next) => {
-      console.error(err.stack)
-      return res.status(404).json({ msg: 'Error. Página no encontrada' })
-    })
-    this.app.use((err, req, res, next) => {
-      console.error(err.stack)
-      return res.status(500).json({ msg: 'Internal Server Error' })
-    })
+    
+  }
+  errorHandlerGlobal() {
+    //manejo de errores 
+    errorHandler
   }
 
   listen() {
