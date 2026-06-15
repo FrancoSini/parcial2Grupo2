@@ -2,7 +2,11 @@ const { Router } = require('express')
 const router = Router()
 const  { middlewareUsuarios } = require('../middleware/usuario-validator')
 
-const { getAllUsuarios } = require('../controllers/usuario.controller')
+const { 
+    getAllUsuarios,
+    getUsuarioById,
+    postUsuario,
+ } = require('../controllers/usuario.controller')
 
 
 router.get('/',  getAllUsuarios)
