@@ -1,0 +1,10 @@
+
+npm-debug.log
+node_modules
+dist
+.env
+*.log
+.git
+.gitignore
+pgadmin
+caddy_data
