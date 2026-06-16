@@ -5,14 +5,14 @@ const {
   getAllCategorias,
   getCategoriaById,
   postCategoria,
-  updateCategoria,
+  putCategoria,
   deleteCategoria
 } = require('../controllers/categoria.controller')
 
 router.get('/', getAllCategorias)
 router.get('/:id', getCategoriaById)
 router.post('/', middlewareCategoria, postCategoria)
-//router.put('/:id', middlewareCategoria, updateCategoria)
-//router.delete('/:id', deleteCategoria)
+router.put('/:id', middlewareCategoria, putCategoria)
+router.delete('/:id', deleteCategoria)
 
 module.exports = router

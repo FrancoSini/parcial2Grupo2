@@ -1,24 +1,24 @@
-const validateInputUsuario = (req, res, next) => {
-    const { nombre, apellido, email, password } = req.body;
-    const error = [];
+const middlewareUsuarios = (req, res, next) => {
+  const { nombre, apellido, email, password } = req.body
+  const error = []
 
-    if (nombre && typeof nombre !== 'string') {
-        error.push('El campo "nombre" debe ser una cadena de texto.');
-    }
-    if (apellido && typeof apellido !== 'string') {
-        error.push('El campo "apellido" debe ser una cadena de texto.');
-    }
-    if (email && typeof email !== 'string') {
-        error.push('El campo "email" debe ser una cadena de texto.');
-    }
-    if (password && typeof password !== 'string') {
-        error.push('El campo "password" debe ser una cadena de texto.');
-    }
+  if (!nombre || typeof nombre !== 'string' || nombre.trim() === '') {
+    error.push('El campo "nombre" es obligatorio.')
+  }
+  if (apellido && typeof apellido !== 'string') {
+    error.push('El campo "apellido" debe ser una cadena de texto.')
+  }
+  if (!email || typeof email !== 'string' || email.trim() === '') {
+    error.push('El campo "email" es obligatorio.')
+  }
+  if (!password || typeof password !== 'string' || password.trim() === '') {
+    error.push('El campo "password" es obligatorio.')
+  }
 
-    if (error.length > 0) {
-        return res.status(400).json({ error: error.join(' ') });
-    }
-    next();
-};
+  if (error.length > 0) {
+    return res.status(400).json({ error: error.join(' ') })
+  }
+  next()
+}
 
-module.exports = { validateInputUsuario };
+module.exports = { middlewareUsuarios }

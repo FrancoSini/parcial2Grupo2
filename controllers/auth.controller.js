@@ -1,84 +1,91 @@
-const { UsuarioModels } = require('../models/usuario.models')
+const bcrypt = require('bcrypt')
+const { UsuarioModel } = require('../dist/models/usuario.model')
 const { generarToken } = require('../middleware/auth.middleware')
 
 // Registrar un nuevo usuario
 const register = async (req, res, next) => {
-    try {
+  try {
     const { nombre, apellido, email, password } = req.body
 
     // Verificar si el email ya existe
-    const usuarioExistente = await UsuarioModels.findOne({ where: { email } })
+    const usuarioExistente = await UsuarioModel.findOne({ where: { email } })
     if (usuarioExistente) {
-        return res.status(400).json({ error: 'El email ya se encuentra registrado.' })
+      return res
+        .status(400)
+        .json({ error: 'El email ya se encuentra registrado.' })
     }
 
-    const nuevoUsuario = await UsuarioModels.create({ nombre, apellido, email, password })
+    // Hashear el password antes de guardar
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    const nuevoUsuario = await UsuarioModel.create({
+      nombre,
+      apellido,
+      email,
+      password: passwordHash
+    })
+
     const token = generarToken(nuevoUsuario)
 
     return res.status(201).json({
-        user: {
+      user: {
         id: nuevoUsuario.id,
         nombre: nuevoUsuario.nombre,
         email: nuevoUsuario.email
-        },
-        token
+      },
+      token
     })
-    } catch (error) {
-        next(error)
-    }
+  } catch (error) {
+    next(error)
+  }
 }
 
 // Iniciar sesión
 const login = async (req, res, next) => {
-    try {
+  try {
     const { email, password } = req.body
 
-    const usuario = await UsuarioModels.findOne({ where: { email } })
+    const usuario = await UsuarioModel.findOne({ where: { email } })
     if (!usuario) {
-        return res.status(401).json({ error: 'Credenciales inválidas.' })
+      return res.status(401).json({ error: 'Credenciales inválidas.' })
     }
 
-    // Validar contraseña con el método del modelo
-    const passwordValida = await usuario.verificarPassword(password)
+    // Comparar password con bcrypt
+    const passwordValida = await bcrypt.compare(password, usuario.password)
     if (!passwordValida) {
-        return res.status(401).json({ error: 'Credenciales inválidas.' })
+      return res.status(401).json({ error: 'Credenciales inválidas.' })
     }
 
     const token = generarToken(usuario)
 
     return res.status(200).json({
-        user: {
+      user: {
         id: usuario.id,
         nombre: usuario.nombre,
         email: usuario.email
-        },
-        token
+      },
+      token
     })
-    } catch (error) {
-        next(error)
-    }
+  } catch (error) {
+    next(error)
+  }
 }
 
 // Obtener perfil del usuario autenticado
 const getPerfil = async (req, res, next) => {
-    try {
-    // El id viene del token decodificado en verificarToken
-    const usuario = await UsuarioModels.findByPk(req.user.id, {
-        attributes: { exclude: ['password'] }
+  try {
+    const usuario = await UsuarioModel.findByPk(req.user.id, {
+      attributes: { exclude: ['password'] }
     })
 
     if (!usuario) {
-        return res.status(404).json({ error: 'Usuario no encontrado.' })
+      return res.status(404).json({ error: 'Usuario no encontrado.' })
     }
 
     return res.status(200).json(usuario)
-    } catch (error) {
-        next(error)
-    }
+  } catch (error) {
+    next(error)
+  }
 }
 
-module.exports = {
-    register,
-    login,
-    getPerfil
-}
+module.exports = { register, login, getPerfil }

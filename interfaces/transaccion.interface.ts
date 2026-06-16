@@ -1,3 +1,4 @@
+// interfaces/transaccion.interface.ts
 export interface InterfaceTransaccion {
   id: number
   monto: number
@@ -5,7 +6,7 @@ export interface InterfaceTransaccion {
   descripcion: string
   tipo: 'ingreso' | 'gasto'
   usuario_id: number
-  categoria_id: number | null
+  categoria_id: number
   createdAt: Date
   updatedAt: Date
 }
