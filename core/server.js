@@ -2,8 +2,7 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const errorHandler = require('../middleware/error-handler')
-const { sequelize } = require('../models/n-index.models')
-
+const { conectarDB } = require('../dist/config/conexion')
 
 class Server {
   constructor() {
@@ -21,19 +20,19 @@ class Server {
   }
 
   rutas() {
-
-    this.app.use('/usuarios', require('../routes/usuario.routes'))
     this.app.use('/api/auth', require('../routes/auth.routes'))
-    
+    this.app.use('/usuarios', require('../routes/usuario.routes'))
   }
+
   errorHandlerGlobal() {
-    //manejo de errores 
-    errorHandler
+    this.app.use(errorHandler)
   }
 
   listen() {
-    this.app.listen(this.port, () => {
-      console.log(`La API está escuchando en el puerto: ${this.port}`)
+    conectarDB().then(() => {
+      this.app.listen(this.port, () => {
+        console.log(`La API está escuchando en el puerto: ${this.port}`)
+      })
     })
   }
 }
