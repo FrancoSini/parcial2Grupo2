@@ -1,5 +1,6 @@
 import { sequelize } from './n-index.models'
 import { DataTypes, Model, Optional } from 'sequelize'
+import bcrypt from 'bcrypt'
 
 import { InterfaceUsuario } from '../interfaces/usuario.interface'
 
@@ -27,6 +28,9 @@ export class UsuarioModel extends Model<InterfaceUsuario, UsuarioCreationAtribbu
         static async createUsuario(usuarioInput: InputUsuario): Promise<UsuarioModel> {
             return await UsuarioModel.create(usuarioInput)
         }
+        async verificarPassword(passwordIngresada: string): Promise<boolean> {
+        return await bcrypt.compare(passwordIngresada, this.password)
+        }
 
     }
 UsuarioModel.init(
@@ -53,10 +57,20 @@ UsuarioModel.init(
             type: DataTypes.STRING,
             allowNull: false
         }
+        
     },
-    {
+{
         sequelize,
-        tableName: 'Usuario',
+        tableName: 'usuarios', 
         timestamps: true
     }
 )
+
+    UsuarioModel.beforeCreate(async (usuario: UsuarioModel) => {
+        if (usuario.password) {
+            const salt = await bcrypt.genSalt(10)
+            usuario.password = await bcrypt.hash(usuario.password, salt)
+        }
+})
+
+module.exports = { UsuarioModels: UsuarioModel }
