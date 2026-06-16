@@ -23,7 +23,7 @@ class Server {
   rutas() {
 
     this.app.use('/usuarios', require('../routes/usuario.routes'))
-    
+    this.app.use('/api/auth', require('../routes/auth.routes'))
     
   }
   errorHandlerGlobal() {
