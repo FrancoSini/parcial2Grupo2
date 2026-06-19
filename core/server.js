@@ -21,7 +21,9 @@ class Server {
 
   rutas() {
     this.app.use('/api/auth', require('../routes/auth.routes'))
-    this.app.use('/usuarios', require('../routes/usuario.routes'))
+    this.app.use('/api/usuarios', require('../routes/usuario.routes'))
+    this.app.use('/api/categorias', require('../routes/categoria.routes'))
+    this.app.use('/api/transacciones', require('../routes/transaccion.routes'))
   }
 
   errorHandlerGlobal() {
