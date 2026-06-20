@@ -27,14 +27,13 @@ const getTransaccionById = async (req, res, next) => {
 
 const postTransaccion = async (req, res, next) => {
   try {
-    const { monto, fecha, descripcion, tipo, usuario_id, categoria_id } =
-      req.body
+    const { monto, fecha, descripcion, tipo, categoria_id } = req.body
     const transaccionCreada = await TransaccionModel.create({
       monto,
-      fecha,
+      fecha: fecha || new Date(),
       descripcion,
       tipo,
-      usuario_id,
+      usuario_id: req.user.id, // viene del token
       categoria_id
     })
     return res.status(201).json(transaccionCreada)
@@ -73,10 +72,40 @@ const deleteTransaccion = async (req, res, next) => {
     next(error)
   }
 }
+const getBalance = async (req, res, next) => {
+  try {
+    const transacciones = await TransaccionModel.findAll({
+      where: { usuario_id: req.user.id }
+    })
+
+    let balance = 0
+    let totalIngresos = 0
+    let totalGastos = 0
+
+    transacciones.forEach((t) => {
+      if (t.tipo === 'ingreso') {
+        totalIngresos += parseFloat(t.monto)
+        balance += parseFloat(t.monto)
+      } else {
+        totalGastos += parseFloat(t.monto)
+        balance -= parseFloat(t.monto)
+      }
+    })
+
+    return res.status(200).json({
+      balance: balance.toFixed(2),
+      totalIngresos: totalIngresos.toFixed(2),
+      totalGastos: totalGastos.toFixed(2)
+    })
+  } catch (error) {
+    next(error)
+  }
+}
 
 module.exports = {
   getAllTransacciones,
   getTransaccionById,
+  getBalance,
   postTransaccion,
   putTransaccion,
   deleteTransaccion
