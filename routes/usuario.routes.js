@@ -4,11 +4,16 @@ const { middlewareUsuarios } = require('../middleware/usuario-validator')
 const {
   getAllUsuarios,
   getUsuarioById,
-  postUsuario
+  postUsuario,
+  putUsuario,
+  deleteUsuario
+
 } = require('../controllers/usuario.controller')
 
 router.get('/', getAllUsuarios)
 router.get('/:id', getUsuarioById)
 router.post('/', middlewareUsuarios, postUsuario)
+router.put('/:id', middlewareUsuarios, putUsuario) 
+router.delete('/:id', deleteUsuario)
 
 module.exports = router

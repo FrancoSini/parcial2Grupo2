@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const errorHandler = require('../middleware/error-handler')
-const { conectarDB } = require('../models/n-index.models')
+const { sequelize } = require('../dist/models/n-index.models')
 const morgan = require('../middleware/morgan')
 const helmet = require('../middleware/helmet')
 
@@ -34,12 +34,14 @@ class Server {
     this.app.use(errorHandler)
   }
 
-  listen() {
-    conectarDB().then(() => {
-      this.app.listen(this.port, () => {
-        console.log(`La API está escuchando en el puerto: ${this.port}`)
-      })
+ listen() {
+  sequelize.sync().then(() => {
+    this.app.listen(this.port, () => {
+      console.log(`La API está escuchando en el puerto: ${this.port}`)
     })
+  }).catch(err => {
+    console.error('Error al conectar con la base de datos:', err)
+  })
   }
 }
 
