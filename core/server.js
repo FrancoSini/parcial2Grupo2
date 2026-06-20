@@ -2,7 +2,9 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const errorHandler = require('../middleware/error-handler')
-const { conectarDB } = require('../dist/config/conexion')
+const { conectarDB } = require('../models/n-index.models')
+const morgan = require('../middleware/morgan')
+const helmet = require('../middleware/helmet')
 
 class Server {
   constructor() {
@@ -14,6 +16,8 @@ class Server {
   }
 
   middleware() {
+    this.app.use(helmet)   
+    this.app.use(morgan)  
     this.app.use(cors())
     this.app.use(express.json())
     this.app.use(express.static('public'))
