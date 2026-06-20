@@ -1,7 +1,8 @@
-// models/usuario.model.ts
+
 import { DataTypes, Model, Optional } from 'sequelize'
 import { sequelize } from './n-index.models'
 import { InterfaceUsuario } from '../interfaces/usuario.interface'
+import bcrypt from 'bcrypt'
 
 type InputUsuario = Omit<InterfaceUsuario, 'id' | 'createdAt' | 'updatedAt'>
 interface UsuarioCreationAttributes extends Optional<
@@ -53,7 +54,7 @@ UsuarioModel.init(
     },
     apellido: {
       type: DataTypes.STRING(100),
-      allowNull: true // en el diagrama ER no era obligatorio
+      allowNull: true
     },
     email: {
       type: DataTypes.STRING(150),
@@ -75,7 +76,17 @@ UsuarioModel.init(
   },
   {
     sequelize,
-    tableName: 'usuarios', // minúsculas, coincide con freezeTableName en conexion.js
-    timestamps: true
+    tableName: 'usuarios',
+    timestamps: true,
+    hooks: {
+      beforeCreate: async (usuario: any) => {
+        usuario.password = await bcrypt.hash(usuario.password, 10)
+      },
+      beforeUpdate: async (usuario: any) => {
+        if (usuario.changed('password')) {
+          usuario.password = await bcrypt.hash(usuario.password, 10)
+        }
+      }
+    }
   }
 )

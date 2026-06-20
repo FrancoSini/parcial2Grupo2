@@ -42,4 +42,37 @@ const postUsuario = async (req, res, next) => {
   }
 }
 
-module.exports = { getAllUsuarios, getUsuarioById, postUsuario }
+const putUsuario = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const { nombre, apellido, email, password } = req.body
+
+    const usuario = await UsuarioModel.findByPk(id)
+    if (!usuario) {
+      return res.status(404).json({ msg: `No se pudo encontrar el usuario ${id}` })
+    }
+
+    await usuario.update({ nombre, apellido, email, password })
+    return res.status(200).json(usuario)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const deleteUsuario = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const usuario = await UsuarioModel.findByPk(id)
+    if (!usuario) {
+      return res.status(404).json({ msg: `No se pudo encontrar el usuario ${id}` })
+    }
+
+    await usuario.destroy()
+    return res.status(200).json({ msg: `Usuario ${id} eliminado correctamente` })
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { getAllUsuarios, getUsuarioById, postUsuario, putUsuario, deleteUsuario }
+
