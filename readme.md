@@ -1,7 +1,7 @@
 # PARCIAL N°2:
 ## API Sistema de Gestión Financiera y Autenticación 
 
-Este proyecto es una **API REST** desarrollada para llevar el control de los movimientos de ingresos y gastos de una organización. Permite administrar usuarios, categorías y transacciones de forma ordenada y centralizada.
+Este proyecto es una **API REST** desarrollada para llevar el control de los movimientos de ingresos y gastos de una organización. Permite administrar usuarios, categorías y transacciones de forma ordenada y centralizada
 
 ### ¿Qué hace la aplicación?
 
@@ -35,6 +35,7 @@ Este proyecto es una **API REST** desarrollada para llevar el control de los mov
 ├── package.json              # Manifiesto de dependencias y scripts de compilación
 ├── tsconfig.json             # Configuración del compilador de TypeScript
 ├── app.js                    # Archivo de arranque inicial de la aplicación
+├── Caddyfile                 # Configuración del servidor y proxy inv
 │
 ├── /core
 │   └── server.js             # Clase Server contenedora de middlewares y rutas globales
@@ -72,17 +73,17 @@ Este proyecto es una **API REST** desarrollada para llevar el control de los mov
 ## Lógica principal
 El servidor se inicializa en `app.js` instanciando la clase `Server` estructurada en `./core/server.js`. La lógica de la aplicación se rige por una arquitectura desacoplada de responsabilidades (MVC):
 
-1. **Conexión e Infraestructura:** El archivo `conexion.ts` se encarga de autenticar y levantar el pool de conexiones relacionales hacia la base de datos PostgreSQL, ejecutando una sincronización alterativa de tablas (`sync({ alter: true })`) de forma automática en el arranque.
-2. **Ciclo de Peticiones:** Las solicitudes HTTP entrantes impactan en los enrutadores alojados en `/routes`. Aquellas rutas que modifican datos o son sensibles pasan por middlewares validadores de esquemas (`/middleware`), los cuales comprueban que los tipos de datos sean correctos; si se hallan inconsistencias, la petición es rechazada devolviendo un listado de errores formateados en un string uniforme.
-3. **Autenticación y Seguridad:** El guardián `auth.middleware.js` intercepta las rutas protegidas del negocio (Categorías y Transacciones). Este verifica la cabecera `Authorization` bajo el esquema `Bearer <token>`. Si la firma del JWT es válida con la clave secreta del entorno, decodifica los datos y añade la propiedad `req.user` para su libre uso en las capas inferiores, aislando el acceso de usuarios no autenticados.
-4. **Controladores y Persistencia:** Los controladores (`/controllers`) procesan las solicitudes asíncronas abstrayendo las interacciones de SQL mediante el mapeo relacional de los modelos de Sequelize. Todo el flujo crítico se encierra en bloques `try/catch` encauzando las excepciones mediante `next(error)` hacia un manejador de errores centralizado (`error-handler.js`), que intercepta problemas de la base de datos (como `SequelizeValidationError`) previniendo caídas imprevistas del servidor.
+1. **Conexión e Infraestructura:** El archivo `conexion.ts` se encarga de autenticar y levantar el pool de conexiones relacionales hacia la base de datos PostgreSQL, ejecutando una sincronización alterativa de tablas (`sync({ alter: true })`) de forma automática en el arranque
+2. **Ciclo de Peticiones:** Las solicitudes HTTP entrantes impactan en los enrutadores alojados en `/routes`. Aquellas rutas que modifican datos o son sensibles pasan por middlewares validadores de esquemas (`/middleware`), los cuales comprueban que los tipos de datos sean correctos; si se hallan inconsistencias, la petición es rechazada devolviendo un listado de errores formateados en un string uniforme
+3. **Autenticación y Seguridad:** El guardián `auth.middleware.js` intercepta las rutas protegidas del negocio (Categorías y Transacciones). Este verifica la cabecera `Authorization` bajo el esquema `Bearer <token>`. Si la firma del JWT es válida con la clave secreta del entorno, decodifica los datos y añade la propiedad `req.user` para su libre uso en las capas inferiores, aislando el acceso de usuarios no autenticados
+4. **Controladores y Persistencia:** Los controladores (`/controllers`) procesan las solicitudes asíncronas abstrayendo las interacciones de SQL mediante el mapeo relacional de los modelos de Sequelize. Todo el flujo crítico se encierra en bloques `try/catch` encauzando las excepciones mediante `next(error)` hacia un manejador de errores centralizado (`error-handler.js`), que intercepta problemas de la base de datos (como `SequelizeValidationError`) previniendo caídas imprevistas del servidor
 
 ---
 
 ## Metodología de Trabajo con Git y GitHub
 Trabajamos bajo una metodología basada en **Git Flow** simplificado:
-* La rama `main` quedó reservada estrictamente para código estable de producción coincidente con las entregas.
-* Cada integrante desarrolló sus funcionalidades asignadas de forma aislada en sus respectivas ramas locales y remotas de características (por ejemplo, la rama `lucia`), enviando sus cambios mediante Pull Requests supervisados hacia la rama de desarrollo e integración global.
+* La rama `main` quedó reservada para código que coincide con las entregas.
+* Cada integrante desarrolló sus funcionalidades asignadas de forma aislada en sus respectivas ramas locales y remotas de características, enviando sus cambios mediante Pull Requests hacia la rama de desarrollo e integración global (dev)
 
 ---
 
@@ -100,21 +101,19 @@ RUN npm run build
 EXPOSE 3000
 CMD ["npm", "start"]
 ```
-Arquitectura de Orquestación (docker-compose.yml)
-El archivo de orquestación acopla 4 servicios de infraestructura reales que corren simultáneamente:
+db (PostgreSQL 17): Es el motor de la base de datos relacional. Se encarga de guardar toda la información del sistema de forma permanente dentro de una carpeta segura de la computadora
 
-db (PostgreSQL 17): Motor de base de datos relacional persistido localmente en un volumen físico y configurado con un mecanismo de chequeo de salud (healthcheck).
+api (Node.js/Express): Es nuestro servidor backend (donde está la lógica del negocio). Está configurado para esperar de forma obligatoria que la base de datos (db) esté encendida y lista antes de arrancar a escuchar peticiones en el puerto 3000
 
-api (Node.js/Express): Nuestro servidor backend, el cual aguarda de forma obligatoria que el contenedor db reporte un estado saludable antes de iniciar la API y escuchar en el puerto 3000.
+pgadmin: Es una herramienta con interfaz gráfica web. Nos permite conectarnos visualmente a PostgreSQL para revisar las tablas, filas y columnas de la base de datos sin necesidad de usar la terminal
 
-pgadmin: Interfaz web de administración gráfica para interactuar visualmente con el motor relacional de PostgreSQL.
-
-caddy: Servidor web seguro que actúa como proxy inverso para gestionar el ruteo hacia la aplicación.
+caddy: Es un servidor web que funciona como Proxy Inverso (el recepcionista del proyecto). Da la cara hacia el exterior, recibe las peticiones de los usuarios y las redirige de forma segura y ordenada hacia nuestra API
 
 ## Mapa de Endpoints (Lista de Rutas)
-#### Módulo de Autenticación (/api/auth)
 
-🟡 POST /api/auth/register: Registra un nuevo usuario en la base de datos. Pasa por el validador estructural de usuarios. Estado: 201 Created.
+#### Módulo de Autenticación y Usuarios (/api/auth)
+
+🟡 POST /api/auth/register: Registra un nuevo usuario en la base de datos (usa la lógica de creación). Pasa por el validador estructural de usuarios. Estado: 201 Created.
 
 🔵 POST /api/auth/login: Verifica las credenciales de acceso y retorna un JSON con el token de sesión JWT de 24 horas. Estado: 200 OK.
 
@@ -143,7 +142,6 @@ caddy: Servidor web seguro que actúa como proxy inverso para gestionar el ruteo
 🟠 PUT /api/transacciones/:id: [RUTA PROTEGIDA] Permite modificar los datos de un movimiento existente identificándolo por su ID primario. Estado: 200 OK.
 
 🔴 DELETE /api/transacciones/:id: [RUTA PROTEGIDA] Elimina definitivamente el movimiento monetario de la persistencia. Estado: 200 OK.
-
 
 ## Funcionalidades de los Controladores
 ## Módulo de Autenticación (auth.controller.js)
@@ -506,7 +504,7 @@ Valor de retorno: Mensaje indicando que el borrado físico concluyó con éxito.
 
 Lógica: Verifica existencia de la clave primaria. Llama a la instrucción destroy() de la instancia, eliminando la tupla de PostgreSQL de forma contundente.
 
-## Módulo de Usuarios Estándar (usuario.controller.js)
+## Módulo de Soporte de Usuarios (usuario.controller.js)
 
 ```getAllUsuarios(req, res, next)```
 
@@ -581,3 +579,84 @@ Valor de retorno: Objeto del usuario creado de manera exitosa.
 
 Lógica: Extrae los parámetros desde el cuerpo estructurado de la petición entrante, crea la fila mapeada mediante UsuarioModel.create e inserta los datos con un estado de éxito 201 Created.
 
+### Funcionalidades de los Middlewares y Seguridad
+
+(auth.middleware.js)
+
+```generarToken(usuario) y verificarToken(req, res, next)```
+
+Descripción: Este archivo intercepta las solicitudes para generar firmas criptográficas a los usuarios logueados y controlar la validez de los tokens en las rutas del negocio financiero.
+
+```javascript
+
+const jwt = require('jsonwebtoken')
+const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta_para_desarrollo'
+
+const generarToken = (usuario) => {
+  return jwt.sign(
+    { id: usuario.id, email: usuario.email },
+    JWT_SECRET,
+    { expiresIn: '24h' }
+  )
+}
+
+const verificarToken = (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'No autorizado, token no provisto.' })
+    }
+
+    const token = authHeader.split(' ')[1]
+    const decoded = jwt.verify(token, JWT_SECRET)
+    
+    req.user = decoded
+    next()
+  } catch (error) {
+    return res.status(401).json({ error: 'Token inválido o expirado.' })
+  }
+}
+
+module.exports = {
+  generarToken,
+  verificarToken
+}
+```
+
+Lógica: * generarToken toma el id y el email del usuario recién autenticado, firma el payload junto con la variable secreta JWT_SECRET y emite un token de acceso temporal con expiración exacta de 24 horas.
+
+verificarToken actúa como un embudo de seguridad. Lee las cabeceras HTTP entrantes buscando el campo authorization. Si no viene bajo el estándar Bearer <token>, deniega el acceso con código 401. Si pasa la estructura, usa jwt.verify() para certificar la firma digital contra la clave del entorno. Si es exitoso, almacena los datos decodificados en la variable req.user para los controladores y llama a next() para dar vía libre a la petición
+
+(error-handler.js)
+
+```errorHandler(err, req, res, next)```
+
+Descripción: Interceptor global de excepciones encargado de unificar las respuestas ante colapsos de red o de base de datos, previniendo la caída del proceso principal de Node.js
+
+```javascript
+
+const errorHandler = (err, req, res, next) => {
+  console.error('[SERVER ERROR]:', err.message || err)
+
+  // Errores de Validación de Sequelize (Campos obligatorios vacíos o tipos erróneos)
+  if (err.name === 'SequelizeValidationError') {
+    const errores = err.errors.map(e => e.message).join(', ')
+    return res.status(400).json({ error: `Error de validación: ${errores}` })
+  }
+
+  // Errores de integridad relacional (Claves foráneas no existentes)
+  if (err.name === 'SequelizeForeignKeyConstraintError') {
+    return res.status(400).json({ error: 'Violación de clave foránea. El ID referenciado de categoría o usuario no existe.' })
+  }
+
+  // Error genérico del sistema
+  return res.status(500).json({
+    error: 'Ocurrió un error inesperado en el servidor de base de datos.'
+  })
+}
+
+module.exports = errorHandler
+```
+
+Lógica: El backend está suscrito a este manejador en server.js mediante la línea this.app.use(errorHandler). Al envolver los controladores en bloques try/catch, cualquier fallo de Postgres es capturado por el bloque catch y derivado con next(error). Este middleware lo intercepta, analiza si el fallo es de Sequelize (por campos inválidos o violación de FK), responde un JSON claro con estado 400 Bad Request y evita que la aplicación web colapse
