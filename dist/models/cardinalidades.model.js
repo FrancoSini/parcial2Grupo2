@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TransaccionModel = exports.CategoriaModel = exports.UsuarioModel = void 0;
+const usuario_model_1 = require("./usuario.model");
+Object.defineProperty(exports, "UsuarioModel", { enumerable: true, get: function () { return usuario_model_1.UsuarioModel; } });
+const categoria_model_1 = require("./categoria.model");
+Object.defineProperty(exports, "CategoriaModel", { enumerable: true, get: function () { return categoria_model_1.CategoriaModel; } });
+const transaccion_model_1 = require("./transaccion.model");
+Object.defineProperty(exports, "TransaccionModel", { enumerable: true, get: function () { return transaccion_model_1.TransaccionModel; } });
+usuario_model_1.UsuarioModel.hasMany(transaccion_model_1.TransaccionModel, { foreignKey: "usuario_id" });
+transaccion_model_1.TransaccionModel.belongsTo(usuario_model_1.UsuarioModel, { foreignKey: "usuario_id" });
+categoria_model_1.CategoriaModel.hasMany(transaccion_model_1.TransaccionModel, { foreignKey: "categoria_id" });
+transaccion_model_1.TransaccionModel.belongsTo(categoria_model_1.CategoriaModel, { foreignKey: "categoria_id" });
