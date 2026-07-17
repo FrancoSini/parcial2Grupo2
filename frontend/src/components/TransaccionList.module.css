@@ -1,0 +1,130 @@
+.wrapper {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.sectionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+}
+
+.thead,
+.row {
+  display: grid;
+  grid-template-columns: 110px 1fr 120px 90px 140px 150px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+}
+
+@media (max-width: 700px) {
+  .thead { display: none; }
+  .row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+  }
+}
+
+.thead {
+  background: var(--off-white);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.row {
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  transition: background 0.1s;
+}
+
+.row:last-child { border-bottom: none; }
+.row:hover { background: var(--off-white); }
+
+.fecha { color: var(--text-muted); font-size: 13px; }
+.desc  { font-weight: 500; }
+.cat   { color: var(--text-muted); font-size: 13px; }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.ingreso { background: var(--green-bg); color: #15803d; }
+.gasto   { background: var(--red-bg);   color: #b91c1c; }
+
+.monto { font-weight: 700; font-size: 15px; }
+.right { text-align: right; }
+.montoIngreso { color: var(--green); }
+.montoGasto   { color: var(--red); }
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.editBtn,
+.deleteBtn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid;
+  transition: background 0.15s;
+}
+
+.editBtn {
+  border-color: var(--navy);
+  color: var(--navy);
+  background: transparent;
+}
+
+.editBtn:hover { background: var(--navy); color: var(--white); }
+
+.deleteBtn {
+  border-color: var(--red);
+  color: var(--red);
+  background: transparent;
+}
+
+.deleteBtn:hover { background: var(--red); color: var(--white); }
+
+/* Empty state */
+.empty {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.emptyHint {
+  font-size: 14px;
+  color: var(--text-muted);
+}
