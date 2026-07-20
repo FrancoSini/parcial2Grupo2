@@ -660,3 +660,29 @@ module.exports = errorHandler
 ```
 
 Lógica: El backend está suscrito a este manejador en server.js mediante la línea this.app.use(errorHandler). Al envolver los controladores en bloques try/catch, cualquier fallo de Postgres es capturado por el bloque catch y derivado con next(error). Este middleware lo intercepta, analiza si el fallo es de Sequelize (por campos inválidos o violación de FK), responde un JSON claro con estado 400 Bad Request y evita que la aplicación web colapse
+
+## Testing y Pruebas Unitarias
+
+Para garantizar la estabilidad y el correcto funcionamiento del sistema, el proyecto cuenta con una suite de pruebas automatizadas orientadas a los controladores y las rutas. 
+
+**Tecnologías utilizadas para el testing:**
+* **Jest:** Framework principal para la estructuración y aserciones de las pruebas
+* **Supertest:** Librería utilizada para simular peticiones HTTP hacia la aplicación Express sin necesidad de levantar el servidor
+
+### Estrategia de Pruebas
+
+El entorno de pruebas utiliza **Mocks** (simulaciones) para aislar las capas de la aplicación, evitando tocar la base de datos real o requerir un token válido durante la ejecución:
+* En las pruebas de **Rutas**, se simulan (mockean) las respuestas de los controladores y del middleware de autenticación (`verificarToken`)
+* En las pruebas de **Controladores**, se simulan los métodos del ORM Sequelize (`findAll`, `findByPk`, `findOne`, `create`, etc.) directamente sobre los modelos (`UsuarioModel` y `TransaccionModel`)
+
+### Cobertura Actual
+
+#### 1. Pruebas de Controladores (Lógica de Negocio)
+Se verifica el comportamiento interno de los controladores ante casos de éxito:
+* **Usuario Controller:** Valida que las funciones `getAllUsuarios`, `getUsuarioById`, `postUsuario`, `putUsuario` y `deleteUsuario` llamen correctamente a la base de datos y retornen los estados HTTP esperados (200 OK y 201 Created)
+* **Transacción Controller:** Verifica el CRUD aislando las transacciones por el `usuario_id` correspondiente. Además, comprueba que el método `getBalance` calcule aritméticamente de forma correcta la resta entre el total de ingresos y gastos, devolviendo un objeto estructurado.
+
+#### 2. Pruebas de Rutas (Endpoints)
+Se testea que la API Express enrute las peticiones correctamente hacia sus controladores correspondientes:
+* **Rutas de Usuarios (`/usuarios`):** Comprueba las solicitudes GET (colección e individual), POST, PUT y DELETE verificando los payloads de respuesta
+* **Rutas de Transacciones (`/transacciones`):** Comprueba el CRUD estándar y el endpoint específico `/transacciones/balance`, asegurando que las respuestas estructurales de ingresos, gastos y balance coincidan con los esquemas esperados
